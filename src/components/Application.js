@@ -2,56 +2,9 @@ import React, { useState, useEffect } from "react";
 import axios from 'axios';
 import DayList from './DayList';
 import Appointment from './Appointment'
+import { getAppointmentsForDay } from 'helpers/selectors';
 
 import "components/Application.scss";
-
-
-const appointments = [
-  {
-    id: 1,
-    time: "12pm",
-  },
-  {
-    id: 2,
-    time: "1pm",
-    interview: {
-      student: "Lydia Miller-Jones",
-      interviewer: {
-        id: 1,
-        name: "Sylvia Palmer",
-        avatar: "https://i.imgur.com/LpaY82x.png",
-      }
-    }
-  },
-  {
-    id: 3,
-    time: "2pm",
-    interview: {
-      student: "Jona Liddier-Myllies",
-      interviewer: {
-        id: 2,
-        name: "Tori Malcolm",
-        avatar: "https://i.imgur.com/Nmx0Qxo.png"
-      }
-    }
-  },
-  {
-    id: 4,
-    time: "3pm",
-    interview: {
-      student: "Lill Jyddia-Mones",
-      interviewer: {
-        id: 3,
-        name: "Mildred Nazir",
-        avatar: "https://i.imgur.com/T2WwVfS.png"
-      },
-    }
-  },
-  {
-    id: 5,
-    time: "4pm",
-  }
-];
 
 export default function Application(props) {
 
@@ -62,14 +15,18 @@ export default function Application(props) {
   })
 
   useEffect(() => {
-    axios.get(`/api/days`)
-      .then(response => {
-        setDays(response.data);
-      })
+    Promise.all([
+      axios.get(`/api/days`),
+      axios.get(`/api/appointments`)
+    ])
+    .then((all) => {
+      const days = all[0].data;
+      const appointments = all[1].data;
+      setState(prev => ({ ...prev, days, appointments }))
+    });
   }, []);
 
   const setDay = day => setState({...state, day});
-  const setDays = days => setState(prev => ({...prev, days}));
 
   return (
     <main className="layout">
@@ -94,7 +51,7 @@ export default function Application(props) {
         />
       </section>
       <section className="schedule">
-        {appointments.map(appointment => (
+        {getAppointmentsForDay(state, state.day).map(appointment => (
           <Appointment
             key={appointment.id}
             {...appointment}
