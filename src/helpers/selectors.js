@@ -14,3 +14,12 @@ export function getInterview(state, interview) {
   }
   return null;
 }
+
+export function getInterviewersForDay(state, day) {
+  const dayObj = state.days.find(dayItem => dayItem.name === day);
+  let interviewers = [];
+  if (dayObj !== undefined) {
+    interviewers = dayObj.interviewers.map(id => state.interviewers[id])
+  }
+  return interviewers;
+}
