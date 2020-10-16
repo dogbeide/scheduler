@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from "react";
-import axios from 'axios';
+import React from "react";
 import DayList from './DayList';
 import Appointment from './Appointment'
 import {
@@ -7,62 +6,22 @@ import {
   getInterview,
   getInterviewersForDay
 } from 'helpers/selectors';
+import useApplicationData from 'hooks/useApplicationData';
 
 import "components/Application.scss";
 
 export default function Application(props) {
 
-  const [state, setState] = useState({
-    day: "Monday",
-    days: [],
-    appointments: {},
-    interviewers: {}
-  })
+  const {
+    state,
+    setDay,
+    bookInterview,
+    cancelInterview
+  } = useApplicationData();
 
-  useEffect(() => {
-    Promise.all([
-      axios.get(`/api/days`),
-      axios.get(`/api/appointments`),
-      axios.get(`/api/interviewers`)
-    ])
-    .then((all) => {
-      const days = all[0].data;
-      const appointments = all[1].data;
-      const interviewers = all[2].data;
-      setState(prev => ({ ...prev, days, appointments, interviewers }))
-    });
-  }, []);
-
-  const setDay = day => setState({...state, day});
-
-  function bookInterview(id, interview) {
-    const appointment = {
-      ...state.appointments[id],
-      interview: { ...interview }
-    };
-    const appointments = {
-      ...state.appointments,
-      [id]: appointment
-    };
-    setState({ ...state, appointments });
-    return axios.put(`/api/appointments/${id}`, { interview });
-  }
-
-  function cancelInterview(id) {
-    const appointments = {
-      ...state.appointments,
-      [id]: {
-        ...state.appointments[id],
-        interview: null
-      }
-    }
-    setState({...state, appointments});
-    return axios.delete(`/api/appointments/${id}`);
-  }
-
-  const appointments = getAppointmentsForDay(state, state.day);
   const interviewers = getInterviewersForDay(state, state.day);
-  const schedule = appointments.map(appointment => {
+
+  const appointments = getAppointmentsForDay(state, state.day).map(appointment => {
     const interview = getInterview(state, appointment.interview);
 
     return (
@@ -101,7 +60,7 @@ export default function Application(props) {
         />
       </section>
       <section className="schedule">
-        {schedule}
+        {appointments}
         <Appointment key="last" time="5pm" />
       </section>
     </main>
