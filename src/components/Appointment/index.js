@@ -27,8 +27,8 @@ export default function Appointment(props) {
       interviewer
     };
     transition(SAVING);
-    props.bookInterview(props.id, interview);
-    transition(SHOW);
+    props.bookInterview(props.id, interview)
+      .then(() => transition(SHOW));
   }
 
   function edit() {
@@ -41,8 +41,8 @@ export default function Appointment(props) {
 
   function confirmDelete() {
     transition(DELETING);
-    props.cancelInterview(props.id);
-    transition(EMPTY);
+    props.cancelInterview(props.id)
+      .then(() => transition(EMPTY));
   }
 
   return (
