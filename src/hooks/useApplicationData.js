@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { getAppointmentsForDay } from 'helpers/selectors';
 
 export default function useApplicationData() {
   const [state, setState] = useState({
@@ -50,5 +51,21 @@ export default function useApplicationData() {
     return axios.delete(`/api/appointments/${id}`);
   }
 
-  return { state, setDay, bookInterview, cancelInterview };
+  function spotsRemaining(increase = false) {
+
+    const days = state.days.map(day => {
+      if (day.name === state.day) {
+        day.spots = increase ? day.spots + 1 : day.spots - 1;
+      }
+      return day;
+    });
+
+    setState(prev => ({
+      ...prev,
+      days
+    }));
+
+  }
+
+  return { state, setDay, bookInterview, cancelInterview, spotsRemaining };
 }
