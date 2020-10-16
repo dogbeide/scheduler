@@ -23,7 +23,7 @@ export default function useApplicationData() {
     });
   }, []);
 
-  const setDay = day => setState({ ...state, day });
+  const setDay = day => setState(prev => ({ ...prev, day }));
 
   function bookInterview(id, interview) {
     const appointment = {
@@ -34,7 +34,7 @@ export default function useApplicationData() {
       ...state.appointments,
       [id]: appointment
     };
-    setState({ ...state, appointments });
+    setState(prev => ({ ...prev, appointments }));
     return axios.put(`/api/appointments/${id}`, { interview });
   }
 
@@ -46,7 +46,7 @@ export default function useApplicationData() {
         interview: null
       }
     }
-    setState({...state, appointments});
+    setState(prev => ({...prev, appointments}));
     return axios.delete(`/api/appointments/${id}`);
   }
 
